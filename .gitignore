@@ -69,3 +69,5 @@ pubspec.lock
 
 # Lottie cache
 assets/lottie/*.json
+
+.flutter-plugins-de
