@@ -69,15 +69,21 @@ class _CharactersListState extends ConsumerState<CharactersList> {
                     Text(parseError(context, error), textAlign: TextAlign.center),
                   SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: retryLoading
-                        ? null
-                        : () async {
-                            final notifier = ref.read(_retryLoadingProvider.notifier);
-                            notifier.state = true;
-                            ref.refresh(paginatedCharactersProvider);
-                            await Future.delayed(const Duration(milliseconds: 500));
-                            notifier.state = false;
-                          },
+                   onPressed: retryLoading
+    ? null
+    : () async {
+        final notifier = ref.read(_retryLoadingProvider.notifier);
+        notifier.state = true;
+        try {
+          ref.invalidate(paginatedCharactersProvider); // clear previous error state
+          await ref.read(paginatedCharactersProvider.notifier).fetchNextPage();
+        } catch (_) {
+          // Optional: Log or show toast/snackbar
+        } finally {
+          notifier.state = false;
+        }
+      },
+
                     child: Text(FlutterI18n.translate(context, 'retry') ?? 'Retry'),
                   ),
                 ],

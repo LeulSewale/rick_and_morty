@@ -65,18 +65,24 @@ class _EpisodesGridState extends ConsumerState<EpisodesGrid> {
                   if (!retryLoading)
                     Text(parseError(context, error), textAlign: TextAlign.center),
                   SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: retryLoading
-                        ? null
-                        : () async {
-                            final notifier = ref.read(_retryLoadingProvider.notifier);
-                            notifier.state = true;
-                            ref.refresh(paginatedEpisodesProvider);
-                            await Future.delayed(const Duration(milliseconds: 500));
-                            notifier.state = false;
-                          },
-                    child: Text(FlutterI18n.translate(context, 'retry') ?? 'Retry'),
-                  ),
+                 ElevatedButton(
+  onPressed: retryLoading
+      ? null
+      : () async {
+          final notifier = ref.read(_retryLoadingProvider.notifier);
+          notifier.state = true;
+          try {
+            ref.invalidate(paginatedEpisodesProvider);
+            await ref.read(paginatedEpisodesProvider.notifier).fetchAllEpisodes();
+          } catch (_) {
+            // Optional: Show toast/snackbar if needed
+          } finally {
+            notifier.state = false;
+          }
+        },
+  child: Text(FlutterI18n.translate(context, 'retry') ?? 'Retry'),
+),
+
                 ],
               ),
             );
